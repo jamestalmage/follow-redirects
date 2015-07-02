@@ -5,6 +5,8 @@ var http = require('http');
 var https = require('https');
 var fs = require('fs');
 
+module.exports = function (httpPort, httpsPort) {
+
 var servers = {};
 
 var httpsOptions = {
@@ -14,8 +16,8 @@ var httpsOptions = {
 };
 
 var serverPorts = {
-  http: 3600,
-  https: 3601
+  http: httpPort,
+  https: httpsPort
 };
 
 function start(app, proto){
@@ -26,11 +28,11 @@ function start(app, proto){
   return Promise.fromNode(function (callback) {
     servers[proto] = proto === 'http' ? http.createServer(app) : https.createServer(httpsOptions, app);
     servers[proto].listen(serverPorts[proto], callback);
-  });
+  }).return(null);
 }
 
 function stop() {
-  return Promise.all([_stop('http'), _stop('https')]);
+  return Promise.all([_stop('http'), _stop('https')]).return(null);
 }
 
 function _stop(proto) {
@@ -54,8 +56,9 @@ function addClientCerts(opts) {
   //opts.key = fs.readFileSync(__dirname + '/testing-client.pem');
 }
 
-module.exports = {
+return {
   start: start,
   stop: stop,
   addClientCerts: addClientCerts
+};
 };

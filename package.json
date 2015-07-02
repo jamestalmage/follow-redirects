@@ -4,7 +4,9 @@
   "description": "HTTP and HTTPS modules that follow redirects.",
   "main": "index.js",
   "scripts": {
-    "test": "BLUEBIRD_DEBUG=1 istanbul cover ./node_modules/.bin/_mocha"
+    "test": "npm run test:node && npm run test:browser",
+    "test:node": "BLUEBIRD_DEBUG=1 istanbul cover ./node_modules/.bin/_mocha -- test/node-test.js",
+    "test:browser": "node test/browser-test-runner.js"
   },
   "repository": {
     "type": "git",
@@ -27,15 +29,31 @@
   },
   "dependencies": {
     "debug": "^2.2.0",
+    "http-browserify-2": "^0.3.0",
     "underscore": ""
   },
   "devDependencies": {
     "bluebird": "^2.9.30",
     "colors": "",
     "concat-stream": "^1.5.0",
+    "cors": "^2.7.1",
     "express": "^4.13.0",
     "istanbul": "^0.3.17",
+    "karma": "^0.12.37",
+    "karma-browserify": "^4.2.1",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-mocha": "^0.2.0",
+    "karma-mocha-reporter": "^1.0.2",
     "mocha": "^2.2.5"
+  },
+  "files": [
+    "index.js",
+    "browser.js"
+  ],
+  "browser": {
+    "./index.js": "./browser.js",
+    "http": "http-browserify-2/http",
+    "https": "http-browserify-2/https"
   },
   "license": "MIT"
 }

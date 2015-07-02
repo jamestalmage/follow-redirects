@@ -1,8 +1,7 @@
 describe('follow-redirects', function() {
   var express = require('express');
-  var concat = require('concat-stream');
   var assert = require('assert');
-  var server = require('./lib/test-server');
+  var server = require('./lib/test-server')(3600, 3601);
   var url = require('url');
   var followRedirects = require('..');
   var http = followRedirects.http;
@@ -201,36 +200,23 @@ describe('follow-redirects', function() {
       .nodeify(done);
   });
 
-  function redirectsTo(opt_status, path) {
-    var args = Array.prototype.slice.call(arguments);
-    return function(req, res) {
-      res.redirect.apply(res, args);
-    }
-  }
+  describe('browser tests in node', function() {
+    var browserServer = require('./browser-server');
 
-  function sendsJson(json) {
-    return function(req, res) {
-      res.json(json);
-    }
-  }
-
-  function concatJson(res) {
-    return new Promise(function (resolve, reject) {
-      res.pipe(concat({encoding:'string'}, function(string){
-        try {
-          resolve(JSON.parse(string));
-        } catch (e) {
-          reject(new Error('error parsing ' + JSON.stringify(string) + '\n caused by: ' + e.message));
-        }
-      })).on('error', reject);
+    before(function(done) {
+      browserServer.setup(done);
     });
-  }
 
-  function asPromise(cb) {
-    return function(result) {
-      return new Promise(function(resolve, reject) {
-        cb(resolve, reject, result);
-      });
-    }
-  }
+    require('./browser-test-definitions')();
+
+    after(function(done) {
+      browserServer.tearDown(done);
+    });
+  });
+
+  var utils = require('./lib/utils');
+  var redirectsTo = utils.redirectsTo;
+  var sendsJson = utils.sendsJson;
+  var asPromise = utils.asPromise;
+  var concatJson = utils.concatJson;
 });
